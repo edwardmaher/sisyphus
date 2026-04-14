@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { isFirstRun } from "./setup/firstRunDetection";
+import { promptApiKey } from "./setup/apiKeyPrompt";
 
 const args = process.argv.slice(2);
 const reconfigure = args.includes("--reconfigure");
@@ -13,7 +14,7 @@ export async function main(): Promise<void> {
   }
 
   if (isFirstRun()) {
-    console.log("First run detected.");
+    await promptApiKey();
     return;
   }
   // Further boot sequence implemented by other features
