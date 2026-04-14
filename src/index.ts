@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { isFirstRun } from "./setup/firstRunDetection";
+
 const args = process.argv.slice(2);
 const reconfigure = args.includes("--reconfigure");
 
@@ -7,6 +9,11 @@ export async function main(): Promise<void> {
   if (reconfigure) {
     // setup/reconfigure-flag feature will implement this
     console.log("Reconfiguration not yet implemented.");
+    return;
+  }
+
+  if (isFirstRun()) {
+    console.log("First run detected.");
     return;
   }
   // Further boot sequence implemented by other features
