@@ -1,6 +1,6 @@
 {
   "setup/npm-install-entry": "pass",
-  "setup/first-run-detection": "fail",
+  "setup/first-run-detection": "pass",
   "setup/api-key-prompt": "fail",
   "setup/api-key-validation": "fail",
   "setup/config-write": "fail",
