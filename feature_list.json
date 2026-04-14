@@ -1,5 +1,5 @@
 {
-  "setup/npm-install-entry": "fail",
+  "setup/npm-install-entry": "pass",
   "setup/first-run-detection": "fail",
   "setup/api-key-prompt": "fail",
   "setup/api-key-validation": "fail",
@@ -7,7 +7,6 @@
   "setup/config-read": "fail",
   "setup/data-dir-init": "fail",
   "setup/reconfigure-flag": "fail",
-
   "agent/gemma-api-client": "fail",
   "agent/prompt-template-load": "fail",
   "agent/personality-prepend": "fail",
@@ -19,7 +18,6 @@
   "agent/error-handling-401": "fail",
   "agent/error-handling-429-retry": "fail",
   "agent/error-handling-5xx": "fail",
-
   "tracking/usage-detection-boot": "fail",
   "tracking/missed-day-flag": "fail",
   "tracking/yelling-mode-activate": "fail",
@@ -27,7 +25,6 @@
   "tracking/apology-gemma-eval": "fail",
   "tracking/apology-auto-accept-5": "fail",
   "tracking/animation-state-set": "fail",
-
   "ui/terminal-layout": "fail",
   "ui/pushing-animation": "fail",
   "ui/yelling-animation": "fail",
@@ -37,7 +34,6 @@
   "ui/input-disabled-while-typing": "fail",
   "ui/o-key-progress-trigger": "fail",
   "ui/animation-asset-load": "fail",
-
   "daily-review/greeting-message": "fail",
   "daily-review/github-auto-review": "fail",
   "daily-review/writing-file-discovery-message": "fail",
@@ -46,7 +42,6 @@
   "daily-review/consolidated-feedback-message": "fail",
   "daily-review/progress-prompt": "fail",
   "daily-review/session-data-write": "fail",
-
   "coding/git-log-yesterday": "fail",
   "coding/git-diff-collect": "fail",
   "coding/completion-grade": "fail",
@@ -56,7 +51,6 @@
   "coding/trend-7day": "fail",
   "coding/trend-30day": "fail",
   "coding/no-commits-edge": "fail",
-
   "writing/file-discovery": "fail",
   "writing/filename-pattern-match": "fail",
   "writing/word-count": "fail",
@@ -66,14 +60,12 @@
   "writing/trend-yesterday": "fail",
   "writing/trend-7day": "fail",
   "writing/no-files-edge": "fail",
-
   "reading/page-count-prompt": "fail",
   "reading/input-validate": "fail",
   "reading/completion-grade": "fail",
   "reading/trend-yesterday": "fail",
   "reading/trend-7day": "fail",
   "reading/trend-30day": "fail",
-
   "progress/graph-render-engine": "fail",
   "progress/x-axis-week-mode": "fail",
   "progress/x-axis-month-mode": "fail",
