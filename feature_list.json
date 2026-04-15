@@ -3,7 +3,7 @@
   "setup/first-run-detection": "pass",
   "setup/api-key-prompt": "pass",
   "setup/api-key-validation": "pass",
-  "setup/config-write": "fail",
+  "setup/config-write": "pass",
   "setup/config-read": "fail",
   "setup/data-dir-init": "fail",
   "setup/reconfigure-flag": "fail",
