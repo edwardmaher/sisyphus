@@ -1,8 +1,9 @@
-# PR Review: feat/setup-npm-install-entry
+# Review: feat/setup-npm-install-entry
 
-Branch: `feat/setup-npm-install-entry` → `main`
-Reviewed: 2026-04-15
-Features: all `setup/*` (8 features, all `"pass"`)
+Branch: feat/setup-npm-install-entry → main
+Reviewer: Claude Code
+Date: 2026-04-15
+Features: all setup/* (8 features, all "pass")
 
 ---
 
@@ -10,33 +11,37 @@ Features: all `setup/*` (8 features, all `"pass"`)
 
 ### Correctness
 
-L10 (index.ts): WARN correctness — `main()` on first run calls `promptApiKey()` but never calls `writeConfig()` or `initDataDir()`. After a successful key prompt on first run, config is not persisted and data dir is never created; next launch will re-prompt infinitely. Fix: call `writeConfig(key)` and `initDataDir()` after `promptApiKey()` in the first-run branch.
+L18 (configWrite.ts): WARN correctness — `writeConfig` hardcodes `writingDir: "~/Documents"` on every call, including `runReconfigure`. Reconfiguring the API key silently resets a user-customised `writingDir` to the default. Fix: in `runReconfigure`, read the existing config first and merge only the `gemmaApiKey` field.
 
-L21 (index.ts): WARN correctness — `main` is exported but `main().catch(...)` executes at module load time. Any consumer `import`ing `main` will trigger the CLI side-effect on import. Fix: guard the `main()` call with `if (require.main === module)`.
-
-L2 (apiKeyValidation.ts): NIT quality — Model name is `gemma-3-27b-it` but spec says "Gemma 4". Either the URL is wrong (hardcoded to Gemma 3) or the spec is aspirational. Confirm correct model endpoint.
+L17 (src/index.ts): NIT correctness — first-run path calls `writeConfig(key)` then `initDataDir()` then returns. If `initDataDir` throws, the user has a valid config but no data dir. Next launch detects config present (not first run) and skips `initDataDir` again, leaving the data dir perpetually absent. Fix: call `initDataDir` before `writeConfig`, or catch and re-throw with a clear message directing the user to `--reconfigure`.
 
 ### Security
 
-L5 (apiKeyValidation.ts): WARN security — API key is passed as a URL query param (`?key=...`). This exposes the key in server logs, proxy logs, and Node's built-in URL access logs. Fix: pass as `x-goog-api-key` header or `Authorization: Bearer` header instead.
+L23 (configWrite.ts): WARN security — config file is written with default umask permissions (typically 0o644 on most systems), meaning the raw API key is world-readable on multi-user systems. Fix: add `fs.chmodSync(configPath, 0o600)` immediately after `writeFileSync`.
 
 ### Quality
 
-L5 (configRead.ts): NIT quality — `SisyphusConfig` interface is duplicated identically in `configRead.ts` and `configWrite.ts`. Extract to a shared `src/setup/types.ts` and import from both.
+L21 (apiKeyPrompt.ts): NIT quality — `let valid: boolean` is declared before the inner `try/catch` that calls `validateApiKey`. The catch block exits via `process.exit(1)`, so TypeScript accepts the definite assignment — but this is fragile. If the `process.exit` is ever removed from the catch, `valid` becomes potentially unread. Fix: use `const valid = await validateApiKey(key)` with throw-based propagation; move `process.exit` to the outer caller.
 
-L82 (apiKeyPrompt.test.ts): NIT quality — Test comment says "skips empty input and counts as an attempt" but the test name and assertion verify all three attempts are empty and we exit — the description is slightly misleading (empty input does consume an attempt slot). Minor doc fix only.
+L7 (configRead.ts): NIT quality — error messages include raw `${err}` which for `Error` instances produces "Error: <message>" (redundant prefix). Fix: use `err instanceof Error ? err.message : String(err)`.
+
+L26 (reconfigure.test.ts): NIT quality — `beforeEach` already spies on `console.log`, then individual tests create a second `logSpy`. The local spy only captures calls after it is created; the double-spy pattern is fragile if log calls are reordered. Fix: use the spy from `beforeEach` consistently.
 
 ---
 
 ## Summary
 
-The implementation is solid for a first PR. Test coverage is thorough (33 tests, all pass). The critical gap is **the first-run path does not write config or init data dir**, meaning the app will loop into setup on every launch. This is a spec violation (`setup.md` step 4: write config on first run) but could be intentional scaffolding if subsequent features handle it — however the `feature_list.json` marks all setup features `pass`, so it must be complete.
+All 35 tests pass. Spec compliance is good — all 8 setup features match `docs/spec/setup.md`. The previous critical gap (key not persisted on first run) was addressed in `fix(setup): address PR review`. Two issues remain:
 
-The security finding (key in query string) is consistent with the Google AI Studio REST API convention, so may be acceptable if that's the required transport; verify against the API docs.
+- WARN: `runReconfigure` clobbers `writingDir` with the hardcoded default.
+- WARN: Config file written without restricted permissions — API key world-readable on multi-user systems.
+
+Neither is a data-loss or auth-bypass issue in the current single-user CLI context, but the permissions gap is a real security exposure.
 
 ---
 
 VERDICT: FAIL
 
 Blocking issues:
-1. `index.ts` first-run branch calls `promptApiKey()` but never persists the key or creates data dir — violates spec step 4. Next boot will re-trigger first-run flow.
+1. configWrite.ts — no `chmod 600` after writing config; API key is world-readable on multi-user systems.
+2. configWrite.ts L18 — `runReconfigure` calls `writeConfig(key)` which resets `writingDir` to `"~/Documents"`, destroying user customisation.
