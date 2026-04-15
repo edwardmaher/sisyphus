@@ -79,7 +79,7 @@ describe("promptApiKey", () => {
     expect(mockExit).toHaveBeenCalledWith(1);
   });
 
-  it("skips empty input and counts as an attempt", async () => {
+  it("exits after 3 empty attempts", async () => {
     mockAnswers("", "", "");
     // fetch never called for empty input
     mockFetchStatus(200);

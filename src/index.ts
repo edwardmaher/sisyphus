@@ -2,6 +2,8 @@
 
 import { isFirstRun } from "./setup/firstRunDetection";
 import { promptApiKey } from "./setup/apiKeyPrompt";
+import { writeConfig } from "./setup/configWrite";
+import { initDataDir } from "./setup/dataDirInit";
 import { runReconfigure } from "./setup/reconfigure";
 
 const args = process.argv.slice(2);
@@ -14,13 +16,17 @@ export async function main(): Promise<void> {
   }
 
   if (isFirstRun()) {
-    await promptApiKey();
+    const key = await promptApiKey();
+    writeConfig(key);
+    initDataDir();
     return;
   }
   // Further boot sequence implemented by other features
 }
 
-main().catch((err) => {
-  console.error(err instanceof Error ? err.message : String(err));
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((err) => {
+    console.error(err instanceof Error ? err.message : String(err));
+    process.exit(1);
+  });
+}

@@ -1,17 +1,19 @@
 export const GEMMA_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemma-3-27b-it:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemma-4-27b-it:generateContent";
 
 export async function validateApiKey(key: string): Promise<boolean> {
-  const url = `${GEMMA_API_URL}?key=${encodeURIComponent(key)}`;
   const body = {
     contents: [{ parts: [{ text: "hi" }] }],
   };
 
   let res: Response;
   try {
-    res = await fetch(url, {
+    res = await fetch(GEMMA_API_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": key,
+      },
       body: JSON.stringify(body),
     });
   } catch {

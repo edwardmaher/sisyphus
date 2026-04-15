@@ -1,12 +1,7 @@
 import fs from "fs";
 import os from "os";
 import path from "path";
-
-interface SisyphusConfig {
-  gemmaApiKey: string;
-  writingDir: string;
-  firstRun: boolean;
-}
+import { SisyphusConfig } from "./types";
 
 export function writeConfig(gemmaApiKey: string): void {
   const sisyphusDir = path.join(os.homedir(), ".sisyphus");

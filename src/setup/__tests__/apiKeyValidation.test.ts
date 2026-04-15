@@ -35,11 +35,13 @@ describe("validateApiKey", () => {
     );
   });
 
-  it("URL includes encoded API key as query param", async () => {
+  it("passes API key as x-goog-api-key header, not query param", async () => {
     mockFetch.mockResolvedValue({ status: 200 });
-    const key = "my key&special=chars";
+    const key = "my-api-key";
     await validateApiKey(key);
-    const calledUrl = mockFetch.mock.calls[0][0] as string;
-    expect(calledUrl).toBe(`${GEMMA_API_URL}?key=${encodeURIComponent(key)}`);
+    const [calledUrl, calledInit] = mockFetch.mock.calls[0] as [string, RequestInit];
+    expect(calledUrl).toBe(GEMMA_API_URL);
+    expect((calledInit.headers as Record<string, string>)["x-goog-api-key"]).toBe(key);
+    expect(calledUrl).not.toContain("?key=");
   });
 });
