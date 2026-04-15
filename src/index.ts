@@ -2,14 +2,14 @@
 
 import { isFirstRun } from "./setup/firstRunDetection";
 import { promptApiKey } from "./setup/apiKeyPrompt";
+import { runReconfigure } from "./setup/reconfigure";
 
 const args = process.argv.slice(2);
 const reconfigure = args.includes("--reconfigure");
 
 export async function main(): Promise<void> {
   if (reconfigure) {
-    // setup/reconfigure-flag feature will implement this
-    console.log("Reconfiguration not yet implemented.");
+    await runReconfigure();
     return;
   }
 
