@@ -4,7 +4,7 @@
   "setup/api-key-prompt": "pass",
   "setup/api-key-validation": "pass",
   "setup/config-write": "pass",
-  "setup/config-read": "fail",
+  "setup/config-read": "pass",
   "setup/data-dir-init": "fail",
   "setup/reconfigure-flag": "fail",
   "agent/gemma-api-client": "fail",
