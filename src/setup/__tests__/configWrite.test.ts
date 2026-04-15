@@ -17,12 +17,12 @@ describe("writeConfig", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockOs.homedir.mockReturnValue(fakeHome);
+    mockFs.mkdirSync.mockReturnValue(undefined);
+    mockFs.writeFileSync.mockReturnValue(undefined);
+    mockFs.chmodSync.mockReturnValue(undefined);
   });
 
   it("creates config directory if absent", () => {
-    mockFs.mkdirSync.mockReturnValue(undefined);
-    mockFs.writeFileSync.mockReturnValue(undefined);
-
     writeConfig("test-key");
 
     expect(mockFs.mkdirSync).toHaveBeenCalledWith(sisyphusDir, {
@@ -31,9 +31,6 @@ describe("writeConfig", () => {
   });
 
   it("writes correct JSON with provided key, default writingDir, firstRun false", () => {
-    mockFs.mkdirSync.mockReturnValue(undefined);
-    mockFs.writeFileSync.mockReturnValue(undefined);
-
     writeConfig("my-api-key");
 
     const expectedJson = JSON.stringify(
@@ -48,6 +45,37 @@ describe("writeConfig", () => {
     );
   });
 
+  it("uses provided writingDir when given", () => {
+    writeConfig("my-api-key", "~/Writing");
+
+    const expectedJson = JSON.stringify(
+      { gemmaApiKey: "my-api-key", writingDir: "~/Writing", firstRun: false },
+      null,
+      2
+    );
+    expect(mockFs.writeFileSync).toHaveBeenCalledWith(
+      configPath,
+      expectedJson,
+      "utf-8"
+    );
+  });
+
+  it("sets file permissions to 0o600 after writing", () => {
+    writeConfig("my-api-key");
+
+    expect(mockFs.chmodSync).toHaveBeenCalledWith(configPath, 0o600);
+  });
+
+  it("calls chmodSync after writeFileSync", () => {
+    const order: string[] = [];
+    mockFs.writeFileSync.mockImplementation(() => { order.push("write"); });
+    mockFs.chmodSync.mockImplementation(() => { order.push("chmod"); });
+
+    writeConfig("my-api-key");
+
+    expect(order).toEqual(["write", "chmod"]);
+  });
+
   it("throws on mkdirSync failure", () => {
     mockFs.mkdirSync.mockImplementation(() => {
       throw new Error("permission denied");
@@ -59,7 +87,6 @@ describe("writeConfig", () => {
   });
 
   it("throws on writeFileSync failure", () => {
-    mockFs.mkdirSync.mockReturnValue(undefined);
     mockFs.writeFileSync.mockImplementation(() => {
       throw new Error("disk full");
     });

@@ -10,12 +10,12 @@ export function readConfig(): SisyphusConfig {
   try {
     raw = fs.readFileSync(configPath, "utf-8");
   } catch (err) {
-    throw new Error(`Failed to read config from ${configPath}: ${err}`);
+    throw new Error(`Failed to read config from ${configPath}: ${err instanceof Error ? err.message : String(err)}`);
   }
 
   try {
     return JSON.parse(raw) as SisyphusConfig;
   } catch (err) {
-    throw new Error(`Invalid JSON in config file ${configPath}: ${err}`);
+    throw new Error(`Invalid JSON in config file ${configPath}: ${err instanceof Error ? err.message : String(err)}`);
   }
 }

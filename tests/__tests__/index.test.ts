@@ -40,8 +40,8 @@ describe("main entry point", () => {
     await main();
 
     expect(mockPromptApiKey).toHaveBeenCalledTimes(1);
-    expect(mockWriteConfig).toHaveBeenCalledWith("my-key");
     expect(mockInitDataDir).toHaveBeenCalledTimes(1);
+    expect(mockWriteConfig).toHaveBeenCalledWith("my-key");
   });
 
   it("non-first-run skips promptApiKey and writeConfig", async () => {

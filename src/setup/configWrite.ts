@@ -3,7 +3,7 @@ import os from "os";
 import path from "path";
 import { SisyphusConfig } from "./types";
 
-export function writeConfig(gemmaApiKey: string): void {
+export function writeConfig(gemmaApiKey: string, writingDir = "~/Documents"): void {
   const sisyphusDir = path.join(os.homedir(), ".sisyphus");
   const configPath = path.join(sisyphusDir, "config.json");
 
@@ -15,12 +15,13 @@ export function writeConfig(gemmaApiKey: string): void {
 
   const config: SisyphusConfig = {
     gemmaApiKey,
-    writingDir: "~/Documents",
+    writingDir,
     firstRun: false,
   };
 
   try {
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2), "utf-8");
+    fs.chmodSync(configPath, 0o600);
   } catch (err) {
     throw new Error(`Failed to write config to ${configPath}: ${err}`);
   }

@@ -88,20 +88,18 @@ describe("promptApiKey", () => {
     expect(mockFetch).not.toHaveBeenCalled();
   });
 
-  it("exits on network error", async () => {
+  it("throws on network error", async () => {
     mockAnswers("some-key");
     mockFetch.mockRejectedValue(new Error("Connection refused"));
 
-    await expect(promptApiKey()).rejects.toThrow("process.exit called");
-    expect(mockExit).toHaveBeenCalledWith(1);
+    await expect(promptApiKey()).rejects.toThrow("Network error");
   });
 
-  it("exits on unexpected API status", async () => {
+  it("throws on unexpected API status", async () => {
     mockAnswers("some-key");
     mockFetchStatus(500);
 
-    await expect(promptApiKey()).rejects.toThrow("process.exit called");
-    expect(mockExit).toHaveBeenCalledWith(1);
+    await expect(promptApiKey()).rejects.toThrow("Unexpected API response: 500");
   });
 
   it("trims whitespace from key", async () => {

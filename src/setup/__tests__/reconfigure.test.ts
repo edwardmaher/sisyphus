@@ -1,17 +1,29 @@
 import { runReconfigure } from "../reconfigure";
 import { promptApiKey } from "../apiKeyPrompt";
 import { writeConfig } from "../configWrite";
+import { readConfig } from "../configRead";
 
 jest.mock("../apiKeyPrompt");
 jest.mock("../configWrite");
+jest.mock("../configRead");
 
 const mockPromptApiKey = promptApiKey as jest.MockedFunction<typeof promptApiKey>;
 const mockWriteConfig = writeConfig as jest.MockedFunction<typeof writeConfig>;
+const mockReadConfig = readConfig as jest.MockedFunction<typeof readConfig>;
+
+let logSpy: jest.SpyInstance;
 
 describe("runReconfigure", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(console, "log").mockImplementation(() => {});
+    logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+    mockReadConfig.mockReturnValue({
+      gemmaApiKey: "old-key",
+      writingDir: "~/Writing",
+      firstRun: false,
+    });
+    mockPromptApiKey.mockResolvedValue("test-key");
+    mockWriteConfig.mockReturnValue(undefined);
   });
 
   afterEach(() => {
@@ -19,30 +31,22 @@ describe("runReconfigure", () => {
   });
 
   it("prints header before prompt", async () => {
-    mockPromptApiKey.mockResolvedValue("test-key");
-    mockWriteConfig.mockReturnValue(undefined);
-
-    const logSpy = jest.spyOn(console, "log");
     await runReconfigure();
 
     expect(logSpy).toHaveBeenNthCalledWith(1, "Reconfiguring Sisyphus...");
   });
 
-  it("calls promptApiKey then writeConfig with returned key", async () => {
+  it("calls readConfig, then promptApiKey, then writeConfig with key and existing writingDir", async () => {
     mockPromptApiKey.mockResolvedValue("my-api-key");
-    mockWriteConfig.mockReturnValue(undefined);
 
     await runReconfigure();
 
+    expect(mockReadConfig).toHaveBeenCalledTimes(1);
     expect(mockPromptApiKey).toHaveBeenCalledTimes(1);
-    expect(mockWriteConfig).toHaveBeenCalledWith("my-api-key");
+    expect(mockWriteConfig).toHaveBeenCalledWith("my-api-key", "~/Writing");
   });
 
   it("prints confirmation after success", async () => {
-    mockPromptApiKey.mockResolvedValue("test-key");
-    mockWriteConfig.mockReturnValue(undefined);
-
-    const logSpy = jest.spyOn(console, "log");
     await runReconfigure();
 
     expect(logSpy).toHaveBeenLastCalledWith("Configuration updated.");

@@ -17,8 +17,8 @@ export async function main(): Promise<void> {
 
   if (isFirstRun()) {
     const key = await promptApiKey();
-    writeConfig(key);
     initDataDir();
+    writeConfig(key);
     return;
   }
   // Further boot sequence implemented by other features

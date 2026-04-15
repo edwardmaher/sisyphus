@@ -26,13 +26,7 @@ export async function promptApiKey(): Promise<string> {
         continue;
       }
 
-      let valid: boolean;
-      try {
-        valid = await validateApiKey(key);
-      } catch (err) {
-        console.error(err instanceof Error ? err.message : String(err));
-        process.exit(1);
-      }
+      const valid = await validateApiKey(key);
 
       if (valid) {
         return key;
